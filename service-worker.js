@@ -65,6 +65,11 @@ self.addEventListener('activate', (event) => {
 
 // Fetch イベント (リクエストへの応答) - Cache First Strategy
 self.addEventListener('fetch', (event) => {
+  // chrome-extension:// で始まるURLのリクエストは処理しない
+  if (event.request.url.startsWith('chrome-extension://')) {
+    return;
+  }
+
   // GETリクエスト以外はネットワークにフォールバック
   if (event.request.method !== 'GET') {
     event.respondWith(fetch(event.request));
