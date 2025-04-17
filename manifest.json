@@ -1,6 +1,6 @@
 {
   "name": "Dietary Education Memory Game",
-  "short_name": "MemoryGame",
+  "short_name": "DietaryGame",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
