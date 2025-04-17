@@ -3,19 +3,31 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
-    <title>Unity WebGL Player | DietaryEducationMemoryGame</title>
+    <title>Unity WebGL Player | DietaryEducationMemoryGame</title> <!-- 必要に応じて manifest.json と合わせる -->
 
-    <!-- PWA manifest -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#4CAF50">
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
 
-    <!-- アイコン -->
-    <link rel="icon" type="image/png" sizes="192x192" href="./image/icon-192x192.png">
-    <link rel="apple-touch-icon" href="./image/icon-192x192.png">
+    <!-- Theme Color for Browser UI -->
+    <meta name="theme-color" content="#4CAF50"> <!-- manifest.jsonのtheme_colorと合わせる (例: 緑色) -->
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="./TemplateData/style.css">
+    <!-- iOS Safari specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- or default, black -->
+    <meta name="apple-mobile-web-app-title" content="MemoryGame"> <!-- manifest.jsonのshort_nameと合わせる -->
+
+    <!-- Add to home screen for Safari on iOS -->
+    <!-- アイコンへのリンク (パスを確認してください) -->
+    <link rel="apple-touch-icon" href="images/icon-192x192.png">
+    <!-- <link rel="apple-touch-icon" sizes="512x512" href="images/icon-512x512.png"> --> <!-- 必要ならコメント解除 -->
+
+    <!-- Existing Favicon and Stylesheet -->
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+
+    <!-- Viewport meta tag (will be added dynamically for mobile below, but good to have a default) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -26,7 +38,7 @@
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-warning"></div>
+      <div id="unity-warning"> </div>
       <div id="unity-footer">
         <div id="unity-webgl-logo"></div>
         <div id="unity-fullscreen-button"></div>
@@ -34,6 +46,7 @@
       </div>
     </div>
 
+    <!-- Unity Loader and Instantiation Script (Original) -->
     <script>
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
@@ -60,22 +73,35 @@
         updateBannerVisibility();
       }
 
-      var buildUrl = "./Build";
-      var loaderUrl = buildUrl + "/Unity-Dietary-Education-Memory-Game.loader.js";
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Unity-Dietary-Education-Memory-Game.loader.js"; // Corrected file name based on initial request
       var config = {
-        dataUrl: buildUrl + "/Unity-Dietary-Education-Memory-Game.data",
-        frameworkUrl: buildUrl + "/Unity-Dietary-Education-Memory-Game.framework.js",
-        codeUrl: buildUrl + "/Unity-Dietary-Education-Memory-Game.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "DietaryEducationMemoryGame",
-        productVersion: "0.1",
+        dataUrl: buildUrl + "/Unity-Dietary-Education-Memory-Game.data",       // Corrected file name
+        frameworkUrl: buildUrl + "/Unity-Dietary-Education-Memory-Game.framework.js", // Corrected file name
+        codeUrl: buildUrl + "/Unity-Dietary-Education-Memory-Game.wasm",     // Corrected file name
+        streamingAssetsUrl: "StreamingAssets", // This line was present in the original config
+        companyName: "DefaultCompany", // Keep or change as needed
+        productName: "DietaryEducationMemoryGame",  // Keep or change as needed
+        productVersion: "0.1",       // Keep or change as needed
         showBanner: unityShowBanner,
       };
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Remove existing viewport meta if any, before adding the mobile specific one
+        var existingMeta = document.querySelector('meta[name="viewport"]');
+        if (existingMeta) {
+            existingMeta.parentNode.removeChild(existingMeta);
+        }
+
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        // Note: shrink-to-fit=no is deprecated, use yes or remove it. Using yes for safety.
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
+        // config.devicePixelRatio = 1; // Uncomment if needed for performance
       } else {
         canvas.style.width = "960px";
         canvas.style.height = "600px";
@@ -94,20 +120,28 @@
             unityInstance.SetFullscreen(1);
           };
         }).catch((message) => {
+          console.error("Unity Loader Error:", message); // 詳細なエラーハンドリング
           alert(message);
         });
       };
-
       document.body.appendChild(script);
+
     </script>
 
-    <!-- Service Worker登録 -->
+    <!-- Service Worker Registration Script -->
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js')
-          .then(reg => console.log("Service worker registered.", reg))
-          .catch(err => console.error("Service worker registration failed:", err));
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./service-worker.js') // Path to your service worker file
+            .then(registration => {
+              console.log('Service Worker registered: ', registration);
+            })
+            .catch(registrationError => {
+              console.log('Service Worker registration failed: ', registrationError);
+            });
+        });
       }
     </script>
+
   </body>
 </html>
