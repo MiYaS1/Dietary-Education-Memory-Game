@@ -15,11 +15,22 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
+        caches.open(CACHE_NAME).then(cache => {
+            console.log('Opened cache');
+            return Promise.all(
+                urlsToCache.map(url => {
+                    return fetch(url).then(response => {
+                        if (!response.ok) {
+                            console.error(`Failed to fetch ${url}`);
+                            throw new Error(`Failed to fetch ${url}`);
+                        }
+                        return cache.put(url, response);
+                    }).catch(err => {
+                        console.error(`Error caching ${url}: `, err);
+                    });
+                })
+            );
+        })
     );
 });
 
@@ -31,9 +42,12 @@ self.addEventListener('fetch', event => {
                 if (response) {
                     return response;
                 }
-                return fetch(event.request);
-            }
-        )
+                // キャッシュに無い場合はネットワークからリソースを取得
+                return fetch(event.request).catch(err => {
+                    console.error('Fetch error: ', err);
+                    throw err;  // 必要に応じてエラーハンドリングを追加
+                });
+            })
     );
 });
 
