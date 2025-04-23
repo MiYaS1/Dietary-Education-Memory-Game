@@ -6,11 +6,10 @@ const filesToCache = [
   'Build/Unity-Dietary-Education-Memory-Game.data.unityweb',
   'Build/Unity-Dietary-Education-Memory-Game.framework.js.unityweb',
   'TemplateData/style.css',
-  'TemplateData/UnityProgress.js',
   'TemplateData/favicon.ico',
   'manifest.json',
-  'icon_192x192.png',
-  'icon_512x512.png'
+  'image/icon_192x192.png',
+  'image/icon_512x512.png'
 ];
 
 self.addEventListener('install', event => {
