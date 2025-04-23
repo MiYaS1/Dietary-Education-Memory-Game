@@ -7,9 +7,7 @@ const urlsToCache = [
     './Build/Unity-Dietary-Education-Memory-Game.data',
     './Build/Unity-Dietary-Education-Memory-Game.framework.js',
     './TemplateData/style.css',
-    './TemplateData/UnityProgress.js',
     './TemplateData/favicon.ico',
-    './TemplateData/webgl-logo.jpg',
     // 他のアセットもここに追加 (画像、音声など)
 ];
 
