@@ -63,3 +63,26 @@ self.addEventListener('activate', event => {
         })
     );
 });
+
+self.addEventListener('install', event => {
+    console.log('Service Worker: Install event triggered');
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(cache => {
+            console.log('Opened cache:', CACHE_NAME);
+            return Promise.all(
+                urlsToCache.map(url => {
+                    console.log('Fetching and caching:', url);
+                    return fetch(url).then(response => {
+                        if (!response.ok) {
+                            console.error(`Failed to fetch ${url}`);
+                            throw new Error(`Failed to fetch ${url}`);
+                        }
+                        return cache.put(url, response);
+                    }).catch(err => {
+                        console.error(`Error caching ${url}: `, err);
+                    });
+                })
+            );
+        })
+    );
+});
