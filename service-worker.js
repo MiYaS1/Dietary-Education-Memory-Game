@@ -8,61 +8,7 @@ const urlsToCache = [
     './Build/Unity-Dietary-Education-Memory-Game.framework.js',
     './TemplateData/style.css',
     './TemplateData/favicon.ico',
-    // 他のアセットもここに追加 (画像、音声など)
 ];
-
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            console.log('Opened cache');
-            return Promise.all(
-                urlsToCache.map(url => {
-                    return fetch(url).then(response => {
-                        if (!response.ok) {
-                            console.error(`Failed to fetch ${url}`);
-                            throw new Error(`Failed to fetch ${url}`);
-                        }
-                        return cache.put(url, response);
-                    }).catch(err => {
-                        console.error(`Error caching ${url}: `, err);
-                    });
-                })
-            );
-        })
-    );
-});
-
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // キャッシュにデータがあればそれを返す
-                if (response) {
-                    return response;
-                }
-                // キャッシュに無い場合はネットワークからリソースを取得
-                return fetch(event.request).catch(err => {
-                    console.error('Fetch error: ', err);
-                    throw err;  // 必要に応じてエラーハンドリングを追加
-                });
-            })
-    );
-});
-
-self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
 
 self.addEventListener('install', event => {
     console.log('Service Worker: Install event triggered');
@@ -79,8 +25,43 @@ self.addEventListener('install', event => {
                         }
                         return cache.put(url, response);
                     }).catch(err => {
-                        console.error(`Error caching ${url}: `, err);
+                        console.error(`Error caching ${url}:`, err);
                     });
+                })
+            );
+        })
+    );
+});
+
+self.addEventListener('fetch', event => {
+    console.log('Service Worker: Fetch event triggered for', event.request.url);
+    event.respondWith(
+        caches.match(event.request)
+            .then(response => {
+                if (response) {
+                    console.log('Returning cached response:', event.request.url);
+                    return response;
+                }
+                console.log('Fetching from network:', event.request.url);
+                return fetch(event.request).catch(err => {
+                    console.error('Fetch error:', err);
+                    throw err;
+                });
+            })
+    );
+});
+
+self.addEventListener('activate', event => {
+    console.log('Service Worker: Activate event triggered');
+    const cacheWhitelist = [CACHE_NAME];
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (!cacheWhitelist.includes(cacheName)) {
+                        console.log('Deleting old cache:', cacheName);
+                        return caches.delete(cacheName);
+                    }
                 })
             );
         })
