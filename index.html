@@ -125,11 +125,13 @@
     <script>
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/service-worker.js')
+              navigator.serviceWorker.register('/service-worker.js')  // ここをルートに修正
                 .then((reg) => console.log('Service worker registered.', reg))
-                .catch((err) => console.error('Service worker not registered.', err));
+                .catch((err) => console.error('Service worker not registered.', err));  // 詳細エラーメッセージを表示
             });
-          }
+          } else {
+            console.log('Service Worker is not supported in this browser.');
+          } 
         </script>
     
   </body>
